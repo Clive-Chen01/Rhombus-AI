@@ -1,29 +1,38 @@
-export async function apiUpload(file: File) {
-    const fd = new FormData();
-    fd.append('file', file);
-    const r = await fetch('/api/upload', { method: 'POST', body: fd });
-    if (!r.ok) throw new Error('Upload failed');
-    return r.json();
+export type UploadApiResp = {
+    filename?: string
+    headers?: string[]
+    columns?: string[]
+    data?: any[][]
+}
+
+export async function apiUpload(file: File): Promise<UploadApiResp> {
+    const fd = new FormData()
+    fd.append('file', file)
+    const r = await fetch('/api/upload', { method: 'POST', body: fd })
+    if (!r.ok) throw new Error(await r.text())
+    return r.json()
 }
 
 
-export async function apiTransform(payload: any) {
+export type TransformApiResp = {
+    intent?: string
+    pattern?: string
+    flags?: string[]
+    columns?: string[]
+    replacement?: string
+    assumptions?: string[]
+    stats?: { updated_rows?: number; updated_cells?: number }
+    headers?: string[]
+    data?: any[][]
+}
+
+
+export async function apiTransform(prompt: string): Promise<TransformApiResp> {
     const r = await fetch('/api/transform', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-    });
-    if (!r.ok) throw new Error('Transform failed');
-    return r.json();
-}
-
-
-export async function apiPreview(nl: string) {
-    const r = await fetch('/api/llm-preview', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ natural_language: nl }),
-    });
-    if (!r.ok) throw new Error('Preview failed');
-    return r.json();
+        body: JSON.stringify({ prompt }),
+    })
+    if (!r.ok) throw new Error(await r.text())
+    return r.json() as Promise<TransformApiResp>
 }

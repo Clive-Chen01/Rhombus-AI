@@ -1,5 +1,5 @@
 {
-    "name": "regex-frontend",
+    "name": "rhombus-ai",
     "version": "0.0.1",
     "private": true,
     "type": "module",
@@ -9,10 +9,16 @@
         "preview": "vite preview"
     },
     "dependencies": {
+        "@emotion/react": "^11.14.0",
+        "@emotion/styled": "^11.14.1",
+        "@mui/icons-material": "^7.3.2",
+        "@mui/material": "^7.3.2",
+        "@mui/x-data-grid": "^8.12.1",
         "react": "^18.3.1",
         "react-dom": "^18.3.1"
     },
     "devDependencies": {
+        "@types/node": "^24.5.2",
         "@types/react": "^18.2.79",
         "@types/react-dom": "^18.2.25",
         "@vitejs/plugin-react": "^5.0.3",

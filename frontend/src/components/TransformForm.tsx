@@ -1,55 +1,78 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import Stack from '@mui/material/Stack'
+import TextField from '@mui/material/TextField'
+import Button from '@mui/material/Button'
+import SendIcon from '@mui/icons-material/Send'
+import Typography from '@mui/material/Typography'
+import Box from '@mui/material/Box'
 
+type ApiResp = {
+  pattern?: string
+  headers?: string[]
+  data?: any[][]
+}
 
-export default function TransformForm({ onPreview, onSubmit, columns, pattern, explanation }: any) {
-    const [nl, setNl] = useState('Find email addresses')
-    const [replacement, setReplacement] = useState('REDACTED')
-    const [selected, setSelected] = useState<string[]>([])
-    const [applyPhone, setApplyPhone] = useState(false)
-    const [applyDate, setApplyDate] = useState(false)
+type Props = {
+  onSubmit: (prompt: string) => Promise<ApiResp>
+  loading?: boolean
+  hasFile?: boolean
+  initialPattern?: string
+}
 
+export default function TransformForm({ onSubmit, loading = false, hasFile = false, initialPattern = '' }: Props) {
+  const [prompt, setPrompt] = useState('')
+  const [pattern, setPattern] = useState(initialPattern)
 
-    return (
-        <section>
-            <h2>2) Natural language → Regex → Replace</h2>
-            <div className="row">
-                <input value={nl} onChange={e=>setNl(e.target.value)} placeholder="Describe the pattern (e.g., Find email addresses)" />
-                <button onClick={()=>onPreview(nl)}>Preview Regex</button>
-            </div>
-            {pattern && (<p><b>Regex:</b> <code>{pattern}</code>{explanation? ` — ${explanation}`: ''}</p>)}
+  useEffect(() => {
+    setPattern(initialPattern)
+  }, [initialPattern])
 
+  async function handleSend() {
+    const p = prompt.trim()
+    if (!p) return
+    try {
+      const resp = await onSubmit(p)
+      setPattern((resp?.pattern ?? '').trim())
+    } catch {
+    }
+  }
 
-            <div className="row">
-                <input value={replacement} onChange={e=>setReplacement(e.target.value)} placeholder="Replacement value" />
-            </div>
+  return (
+    <Stack spacing={2}>
+      <TextField
+        fullWidth
+        label="Prompt"
+        placeholder="Please enter prompt"
+        value={prompt}
+        onChange={(e) => setPrompt(e.target.value)}
+        helperText="eg.: Normalize date to YYYY-MM-DD etc."
+      />
 
+      <Button
+        variant="contained"
+        startIcon={<SendIcon />}
+        onClick={handleSend}
+        disabled={!hasFile || loading || !prompt.trim()}
+      >
+        {loading ? 'Processing…' : 'Send'}
+      </Button>
 
-            {columns.length>0 && (
-                <div className="row">
-                    <label>Target columns (optional):</label>
-                    <select multiple value={selected} onChange={(e)=>{
-                        const opts = Array.from(e.target.selectedOptions).map(o=>o.value)
-                        setSelected(opts)
-                    }}>
-                        {columns.map((c:string)=> <option key={c} value={c}>{c}</option>)}
-                    </select>
-                </div>
-            )}
-
-
-            <div className="row">
-                <label><input type="checkbox" checked={applyPhone} onChange={()=>setApplyPhone(v=>!v)} /> Normalize AU phones (+61)</label>
-                <label><input type="checkbox" checked={applyDate} onChange={()=>setApplyDate(v=>!v)} /> Normalize dates (YYYY-MM-DD)</label>
-            </div>
-
-
-            <button onClick={()=> onSubmit({
-                natural_language: nl,
-                replacement,
-                columns: selected,
-                apply_phone_normalization: applyPhone,
-                apply_date_normalization: applyDate,
-            })}>Apply</button>
-        </section>
-    )
+      {pattern && (
+        <Stack spacing={1}>
+          <Typography variant="subtitle1">Regex Use：</Typography>
+          <Box
+            component="pre"
+            sx={{
+              m: 0, p: 1, borderRadius: 1, bgcolor: 'action.hover',
+              fontFamily:
+                'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+              fontSize: 14, lineHeight: 1.6, whiteSpace: 'pre-wrap', wordBreak: 'break-all',
+            }}
+          >
+            {pattern}
+          </Box>
+        </Stack>
+      )}
+    </Stack>
+  )
 }

@@ -17,11 +17,18 @@ cd frontend
 
 npm i
 
+### Ollama
+Download Ollama from https://ollama.com/ and run it
+
+Choose a model(In this project, I use gpt-oss:120b from Ollama Cloud, so I get an API Key from my account.)
+
 ## Run
 ### Backend
-python manage.py migrate
+cd backend
 
 python manage.py runserver 8000
 
 ### Frontend
+cd frontend
+
 npm run dev
