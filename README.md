@@ -1,4 +1,5 @@
 # Rhombus-AI---Technical-Assessment-Submission
+Using Django and React. Supported by Ollama.
 
 ## Deployment
 ### Backend
